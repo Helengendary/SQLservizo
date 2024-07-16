@@ -1,2 +1,2 @@
-# SQLservi-o
+# SQLservizo
 bancos e dados

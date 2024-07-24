@@ -1,0 +1,41 @@
+--create table Logan( Data	DATETIME, Operacao VARCHAR(255), Observacao varchar(255) PRIMARY KEY (Data, Operacao))
+
+
+--CREATE  TRIGGER  salvarwolverine -- É o nome definido pelo usuário para o novo trigger
+--ON  TABELA_DE_VENDEDORES-- É a tabela à qual o trigger se aplica.
+--AFTER insert
+--AS
+--BEGIN
+--    insert into  Logan (Data, Operacao, Observacao) values (getdate(), 'Inserção', (select NOME from inserted))
+--END
+
+
+--insert into TABELA_DE_VENDEDORES(MATRICULA, NOME) VALUES ('97779', 'nicolle')
+--go
+--select * from TABELA_DE_CLIENTES
+--go
+--select * from Logan
+
+-- EXERCICIO 2
+--create table Deletados(Data	DATETIME, Operacao VARCHAR(255), Observacao varchar(255) PRIMARY KEY (Data, Operacao))
+
+create TRIGGER  Della
+ON  TABELA_DE_CLIENTES
+AFTER delete AS
+BEGIN
+	declare 
+	@cpfExcluido varchar(11),
+	@numeroExcluir int
+	select @cpfExcluido = (select CPF from deleted)
+	select @numeroExcluir = (select NUMERO from NOTAS_FISCAIS where @cpfExcluido = CPF)
+    insert into Deletados(Data, Operacao, Observacao) values (getdate(), 'Inserção', (select NOME from deleted))
+	delete from NOTAS_FISCAIS where @cpfExcluido = CPF
+	delete from ITENS_NOTAS_FISCAIS where NUMERO = @numeroExcluir
+END
+
+
+delete from TABELA_DE_CLIENTES where CPF = '5648641702'
+go
+select * from TABELA_DE_CLIENTES
+go
+select * from Deletados

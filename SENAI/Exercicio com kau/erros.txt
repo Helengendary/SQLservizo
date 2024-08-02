@@ -1,0 +1,7 @@
+confusinha
+faltou preço em serviço
+faltou status
+idcliente em carro
+Nomes
+faltou not null
+apenas 20 caracteres de endereço

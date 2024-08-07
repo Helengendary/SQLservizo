@@ -1,12 +1,15 @@
 drop database bookstore;
 
 CREATE DATABASE IF NOT EXISTS bookstore;
+
 USE bookstore;
+
 -- Tabela 'autores'
 CREATE TABLE autora (
 autor_id INT AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(100)
 );
+
 -- Tabela 'livros'
 CREATE TABLE livro (
 livro_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -15,15 +18,16 @@ autor_id INT,
 preco DECIMAL(10, 2),
 FOREIGN KEY (autor_id) REFERENCES autora(autor_id)
 );
+
 -- Tabela 'clientes'
 CREATE TABLE cliente (
 cliente_id INT AUTO_INCREMENT PRIMARY KEY,
 nome VARCHAR(100),
 email VARCHAR(100)
 );
+
 -- Tabela 'pedidos'
 CREATE TABLE pedido (
-
 pedido_id INT AUTO_INCREMENT PRIMARY KEY,
 cliente_id INT,
 livro_id INT,
@@ -32,6 +36,8 @@ data_pedido DATE,
 FOREIGN KEY (cliente_id) REFERENCES cliente(cliente_id),
 FOREIGN KEY (livro_id) REFERENCES livro(livro_id)
 );
+
+
 INSERT INTO autora (nome) VALUES
 ('Stephen King'),
 ('J.K. Rowling'),
@@ -76,6 +82,8 @@ INSERT INTO livro (titulo, autor_id, preco) VALUES
 ('The Metamorphosis', 18, 10.75),
 ('Frankenstein', 19, 13.99),
 ('Beloved', 20, 15.25);
+
+
 -- Inserções para a tabela 'clientes'
 INSERT INTO cliente (nome, email) VALUES
 ('João Silva', 'joao.silva@example.com'),
@@ -98,8 +106,9 @@ INSERT INTO cliente (nome, email) VALUES
 ('Carolina Alves', 'carolina.alves@example.com'),
 ('Vinícius Fernandes', 'vinicius.fernandes@example.com'),
 ('Marina Ribeiro', 'marina.ribeiro@example.com');
--- Inserções para a tabela 'pedidos'
 
+
+-- Inserções para a tabela 'pedidos'
 INSERT INTO pedido (cliente_id, livro_id, quantidade, data_pedido) VALUES
 (1, 1, 2, '2024-03-01'),
 (2, 2, 1, '2024-03-02'),
@@ -157,7 +166,7 @@ from livro L
         
 -- 4
 
-select pedido_id, Nome 'Cliente', titulo 'Livro comprado', quantidade 
+select P.pedido_id, C.Nome 'Cliente', L.titulo 'Livro comprado', P.quantidade 
 from pedido P
 	inner join Cliente C on P.cliente_id = C.cliente_id
     inner join Livro L on P.livro_id = L.livro_id;
@@ -165,7 +174,7 @@ from pedido P
     
 -- 5
 
-select pedido_id, data_pedido, nome
+select P.pedido_id, P.data_pedido, C.nome
 from Pedido P
 	inner join Cliente C on P.cliente_id = C.cliente_id
 where data_pedido like "2024-03-01%";
@@ -173,7 +182,7 @@ where data_pedido like "2024-03-01%";
 
 -- 6
 
-select titulo, quantidade, Nome
+select L.titulo, P.quantidade, C.Nome
 from Livro L
 	left join Pedido P on L.livro_id = P.livro_id
     inner join Cliente C on P.cliente_id = C.cliente_id;
@@ -181,13 +190,131 @@ from Livro L
     
 -- 7
 
-select Nome 
-from cliente C
-	left join Pedido P on C.cliente_id = P.cliente_id;
+select C.Nome from cliente C
+	left join pedido P on P.cliente_id = C.cliente_id
+where P.cliente_id = null;
     
     
 -- 8
 
-select Nome 
-from autora A 
-	inner join Livro L on
+select A.nome,
+    L.titulo,
+    L.preco
+from autora A
+	inner join livro L on L.autor_id = A.autor_id
+where L.preco > 20;
+
+
+-- 9 
+
+select L.titulo,
+    A.nome,
+    L.preco
+from livro L
+	left join autora A on A.autor_id = L.autor_id;
+
+
+-- exercício 10
+
+select pedido_id, Nome 'Cliente' 
+from pedido P 
+	left join cliente C on P.cliente_id = C.cliente_id;
+
+-- exercício 11
+
+select A.nome,
+    L.preco,
+    P.quantidade
+from autora A
+	inner join livro L on A.autor_id = L.autor_id
+	inner join pedido P on P.livro_id = L.livro_id;
+
+
+-- exercício 12
+
+select P.pedido_id,
+	C.nome,
+    L.titulo
+from cliente C
+	left join pedido P on C.cliente_id = P.cliente_id
+	left join livro L on P.livro_id = L.livro_id;
+
+
+-- exercício 13
+
+select A.nome,
+    L.titulo,
+    P.data_pedido
+from autores A
+	inner join livro L on L.autor_id = A.autor_id
+	inner join pedido P on P.livro_id = L.livro_id;
+
+
+-- exercicio 14
+
+select P.pedido_id,
+	C.nome,
+    L.titulo
+from cliente C
+	inner join pedido P on C.cliente_id = P.cliente_id
+	inner join livro L on L.livro_id = P.livro_id
+where C.nome like "A%";
+
+
+-- exercício 15
+
+select *
+from pedidos P
+	left join livros L on L.livro_id = P.livro_id
+where P.livro_id = null;
+
+
+-- exercício 16
+
+select P.pedido_id,
+    C.nome,
+    L.titulo,
+    P.quantidade,
+    P.data_pedido
+from pedido P
+	inner join cliente C on P.cliente_id = C.cliente_id
+	inner join livro L on L.livro_id = P.livro_id;
+
+
+-- exercício 17
+
+select A.nome, L.titulo, L.preco from autora A
+	inner join livro L on L.autor_id = A.autor_id;
+
+
+-- exercício 18
+
+select  P.pedido_id,
+	C.nome,
+    L.titulo
+from cliente C
+	inner join pedido P on C.cliente_id = P.cliente_id
+	inner join livro L on L.livro_id = P.livro_id;
+
+
+-- exercício 19
+
+select P.pedido_id,
+	C.nome,
+    L.titulo
+from cliente C
+	right join pedido P on C.cliente_id = P.cliente_id
+	right join livro L on L.livro_id = P.livro_id;
+
+
+-- exercício 20
+
+select P.pedido_id,
+    A.nome 'Autor',
+	C.nome 'Cliente',
+    L.titulo
+from cliente C
+	inner join pedido P on C.cliente_id = P.cliente_id
+	inner join livro L on L.livro_id = P.livro_id
+	inner join autora A on L.autor_id = A.autor_id
+where A.nome like '%a';

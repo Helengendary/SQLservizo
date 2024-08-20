@@ -1,5 +1,8 @@
 -- Criação do banco de dados
+
+
 CREATE DATABASE DetranDB;
+drop database detrandb;
 USE DetranDB;
 
 -- Tabela para registrar proprietários
@@ -21,6 +24,7 @@ CREATE TABLE Veiculos (
     ano INT,
     proprietario_id INT,
     FOREIGN KEY (proprietario_id) REFERENCES Proprietarios(id)
+		on delete set null
 );
 
 -- Tabela para registrar infrações de trânsito
@@ -39,6 +43,7 @@ CREATE TABLE Licenciamentos (
     data_validade DATE NOT NULL,
     veiculo_id INT,
     FOREIGN KEY (veiculo_id) REFERENCES Veiculos(id)
+		on delete set null
 );
 
 -- Tabela para registrar multas aplicadas
@@ -137,15 +142,41 @@ end
 // DELIMITER ;
 
 call inserir_veiculo("Ford", "Fiesta", "abc3333", 3000, 1);
+select * from notificacoes;
 
 
 -- Deletar um veículo e suas multas associadas (com trigger)
 DELIMITER //
 create procedure deletar_veiculos(id_vei int)
 begin
-	
+	delete from veiculos where id = id_vei;	
 end
 // DELIMITER ;
+
+DELIMITER //
+create trigger tr_deletar_multas
+before delete on infracoes for each row
+begin
+	delete from multas where infracao_id = old.id;
+end
+// DELIMITER ;
+
+DELIMITER //
+create trigger tr_deletar_infracao
+before delete on veiculos for each row
+begin 
+	delete from infracoes where veiculo_id = old.id;
+end
+// DELIMITER ;
+
+drop trigger tr_deletar_multas;
+drop trigger tr_deletar_infracao;
+
+select * from veiculos;
+call deletar_veiculos(1);
+select * from infracoes;
+select * from multas;
+
 
 -- Inserir uma nova infração e atualizar multas associadas (com trigger)
 DELIMITER //
@@ -153,6 +184,7 @@ DELIMITER //
 
 -- Atualizar pontos na carteira de um proprietário específico que levou uma multa(com trigger)
 DELIMITER //
+
 // DELIMITER ;
 
 -- Deletar um proprietário e seus veículos associados (com trigger)
@@ -160,43 +192,138 @@ DELIMITER //
 // DELIMITER ;
 
 -- Selecionar veículos com licenciamento expirado
+
 DELIMITER //
+create procedure licenciamento_vencido ()
+begin
+	select V.modelo, L.data_validade from licenciamentos L
+		inner join veiculos V on L.veiculo_id = V.id
+	where curdate() > L.data_validade;
+end
 // DELIMITER ;
+
+call licencimento_vencido();
 
 -- Selecionar veículos que possuem multas graves
 DELIMITER //
+create procedure graves()
+begin
+	select V.modelo, I.descricao from infracoes I 
+		inner join veiculos V on I.veiculo_id = V.id
+	where I.gravidade = 'Grave';
+end
 // DELIMITER ;
+
+call graves();
+
+
 
 -- Selecionar veículos acima de 2021 
 DELIMITER //
+create procedure acima_21()
+begin
+	select * from veiculos where ano > 2021;
+end
 // DELIMITER ;
+
+select * from veiculos;
+call acima_21();
+
+
+
+
 
 -- Selecionar multas de veículos abaixo de 2020
 DELIMITER //
+create procedure multas_baixo_20 ()
+begin 
+	select I.descricao from infracoes I
+		inner join veiculos V on I.veiculo_id = V.id
+	where V.ano < 2020;
+end
 // DELIMITER ;
+
+call multas_baixo_20();
+
+
 
 -- Selecionar todos os veículos com multas pendentes
 DELIMITER //
+create procedure multas_pendentes ()
+begin
+	select * from multas
+	where data_aplicacao < now();
+end
 // DELIMITER ;
+
+call multas_pendentes();
+
+
+
+
+
 
 -- Inserir um novo proprietário
 DELIMITER //
+create procedure novo_propri(nome varchar(255), cpf varchar(11), endereco varchar(255), telefone varchar(20), pontos_carteira int)
+begin
+	insert into proprietarios values (default, nome, cpf, endereco, telefone, pontos_carteira);
+end
 // DELIMITER ;
+
+call novo_propri('Helena de Lima', '12345678910', 'Rua da alegria', '91234-1234', 20);
+select * from proprietarios;
+
+
+
 
 -- Atualizar informações de um proprietário
 DELIMITER //
+create procedure update_propri (objeto varchar(255), valor varchar(255), idpro int)
+begin 
+	update proprietarios
+	set objeto = valor
+    where id = idpro;
+end
 // DELIMITER ;
+
+
+
+
+
+
 
 -- Deletar um proprietário
 DELIMITER //
+create procedure deletar_propri (idpro int)
+begin
+	delete from proprietarios where id = idpro;
+end
 // DELIMITER ;
+
+
+
+
+
 
 -- Selecionar todos os proprietários
 DELIMITER //
+create procedure all_propri ()
+begin 
+	select * from proprietarios;
+end
 // DELIMITER ;
+
+call all_propri();
+
+
 
 -- Inserir uma nova infração
 DELIMITER //
+create procedure nova_infracao ()
+begin 
+	insert into infracoes values (default, 
+end
 // DELIMITER ;
 
 -- Atualizar informações de uma infração

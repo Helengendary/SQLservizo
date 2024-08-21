@@ -318,30 +318,76 @@ call all_propri();
 
 
 
+
 -- Inserir uma nova infração
 DELIMITER //
-create procedure nova_infracao ()
+create procedure nova_infracao (descricao varchar(255), gravidade ENUM('Leve', 'Média', 'Grave', 'Gravíssima'), dataoc DATE, veiculo INT)
 begin 
-	insert into infracoes values (default, 
+	insert into infracoes values (default, descricao, gravidade, dataoc, veiculo);
 end
 // DELIMITER ;
 
+
+
+
+
 -- Atualizar informações de uma infração
 DELIMITER //
+create procedure update_infracao (coluna varchar(30), valor varchar (255), idinfra int)
+begin
+	update infracao 
+    set coluna = valor
+    where id = idinfra;
+end
 // DELIMITER ;
+
+
+
 
 -- Deletar uma infração
 DELIMITER //
+create procedure deletar_infracao(idinfra int)
+begin
+	delete from infracoes where id = idinfra;
+end
 // DELIMITER ;
+
+
+
+
 
 -- Selecionar todas as infrações
 DELIMITER //
-// DELIMITER ;
+create procedure all_infracao ()
+begin
+	select * from infracoes;
+end
+// DELIMITER 
+
+
+
+
+
 
 -- Inserir um novo licenciamento
 DELIMITER //
+create procedure novo_licenciamento(dataval date, veiculo int)
+begin
+	insert into licenciamento values (default, dataval, veiculo);
+end
 // DELIMITER ;
+
+
+
+
+
 
 -- Atualizar informações de um licenciamento
 DELIMITER //
+create procedure update_licenciamento (coluna varchar(20), valor varchar(20), idlic int)
+begin
+	update licenciamentos 
+    set coluna = valor 
+    where id = idlic;
+end
 // DELIMITER ;
